@@ -1,13 +1,12 @@
-# Fantasy Land Specification
+# Спецификация Fantasy Land
 
 [![Build Status](https://travis-ci.org/fantasyland/fantasy-land.svg?branch=master)](https://travis-ci.org/fantasyland/fantasy-land) [![Join the chat at https://gitter.im/fantasyland/fantasy-land](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/fantasyland/fantasy-land?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-(aka "Algebraic JavaScript Specification")
+(aka "Спецификация Алгебраического JavaScript'а")
 
 <img src="logo.png" width="200" height="200" />
 
-This project specifies interoperability of common algebraic
-structures:
+Этот проект определяет взаимодействие общих алгебраических структур:
 
 * [Setoid](#setoid)
 * [Semigroup](#semigroup)
@@ -31,39 +30,34 @@ structures:
 
 <img src="figures/dependencies.png" width="888" height="289" />
 
-## General
+## Общее
 
-An algebra is a set of values, a set of operators that it is closed
-under and some laws it must obey.
+Алгебра представляет собой набор значений, набор операторов, которые заключены и должны подчиняться некоторым законам.
 
-Each Fantasy Land algebra is a separate specification. An algebra may
-have dependencies on other algebras which must be implemented.
+Каждая алгебра Fantasy Land – это отдельная спецификация. Алгебра может иметь зависимости от реализаций других алгебр.
 
-## Terminology
+## Терминология
 
-1. "value" is any JavaScript value, including any which have the
-   structures defined below.
-2. "equivalent" is an appropriate definition of equivalence for the given value.
-    The definition should ensure that the two values can be safely swapped out in a program that respects abstractions. For example:
-    - Two lists are equivalent if they are equivalent at all indices.
-    - Two plain old JavaScript objects, interpreted as dictionaries, are equivalent when they are equivalent for all keys.
-    - Two promises are equivalent when they yield equivalent values.
-    - Two functions are equivalent if they yield equivalent outputs for equivalent inputs.
+1. "значение" любые JavaScript значения, включая структуры определенные ниже.
+2. "эквивалент" - подходящее определение эквивалентности для заданного значения. Определение должно гарантировать, что эти два значения могут быть безопасно переставленны в программе, что подтверждает абстракцию. Например:
+- Два списка эквивалентны, если они эквивалентны по всем показателям.
+- Два обычных JavaScript-объекта, представленные как словари, эквивалентны, если они эквивалентны по всем ключям.
+- Два промиса эквивалентны, когда они возвращают эквивалентные значения.
+- Две функции эквивалентны, если они дают эквивалентные результаты для эквивалентных входных данных.
 
-## Prefixed method names
+## Префиксы имен методов
 
-In order for a data type to be compatible with Fantasy Land, its values must
-have certain properties. These properties are all prefixed by `fantasy-land/`.
-For example:
+Для тех типов данных, которые должны быть совместимы с Fantasy Land, значения должны иметь определенные свойства. Эти свойства имеют префикс `fantasy-land/`.
+Например:
 
 ```js
 //  MyType#fantasy-land/map :: MyType a ~> (a -> b) -> MyType b
 MyType.prototype['fantasy-land/map'] = ...
 ```
 
-Further in this document unprefixed names are used just to reduce noise.
+Далее в этом документе имена без префиксов используются только для уменьшения шума.
 
-For convenience you can use `fantasy-land` package:
+Для удобства вы можете использовать пакет `fantasy-land`:
 
 ```js
 var fl = require('fantasy-land')
@@ -77,305 +71,267 @@ MyType.prototype[fl.map] = ...
 var foo = bar[fl.map](x => x + 1)
 ```
 
-## Type representatives
+## Представление типа
 
-Certain behaviours are defined from the perspective of a member of a type.
-Other behaviours do not require a member. Thus certain algebras require a
-type to provide a value-level representative (with certain properties). The
-Identity type, for example, could provide `Id` as its type representative:
-`Id :: TypeRep Identity`.
+Определенные виды поведения определяются с точки зрения представления типа. Другие поведения не требуют представления. Таким образом, определенные алгебры требуют тип для предоставления значения-уровня представления (с определенными свойствами). Тип Identity, например, может обеспечить `Id` в качестве своего представителя типа: `Id :: TypeRep Identity`.
 
-If a type provides a type representative, each member of the type must have
-a `constructor` property which is a reference to the type representative.
+Если тип предоставляет представителя типа, каждый представитель типа должен иметь свойство `constructor`, которое является ссылкой на представителя типа.
 
-## Algebras
+## Алгебры
 
 ### Setoid
 
-1. `a.equals(a) === true` (reflexivity)
-2. `a.equals(b) === b.equals(a)` (symmetry)
-3. If `a.equals(b)` and `b.equals(c)`, then `a.equals(c)` (transitivity)
+1. `a.equals(a) === true` (рефлексивность)
+2. `a.equals(b) === b.equals(a)` (симметрия)
+3. Если `a.equals(b)` и  `b.equals(c)`, то `a.equals(c)` (транзитивность)
 
-#### `equals` method
+#### Метод `equals`
 
 ```hs
 equals :: Setoid a => a ~> a -> Boolean
 ```
 
-A value which has a Setoid must provide an `equals` method. The
-`equals` method takes one argument:
+Значение Setoid должно предоставить метод `equals`. Метод `equals` принимает один аргумент:
 
     a.equals(b)
 
-1. `b` must be a value of the same Setoid
+1. `b` должен быть значением того же Setoid
 
-    1. If `b` is not the same Setoid, behaviour of `equals` is
-       unspecified (returning `false` is recommended).
+    1. Если `b` не тот же Сетоид, поведение `equals` неоперделено (рекомендуется возвращать `false`)
 
-2. `equals` must return a boolean (`true` or `false`).
+2. `equals` должен возвращать логическое значение (`true` или `false`)
 
 ### Semigroup
 
-1. `a.concat(b).concat(c)` is equivalent to `a.concat(b.concat(c))` (associativity)
+1. `a.concat(b).concat(c)` эквивалентно `a.concat(b).concat(c)` (ассоциативность)
 
-#### `concat` method
+#### Метод `concat`
 
 ```hs
 concat :: Semigroup a => a ~> a -> a
 ```
 
-A value which has a Semigroup must provide a `concat` method. The
-`concat` method takes one argument:
+Значение Semigroup должно предоставить метод `concat`. Метод `concat` принимает один аргумент:
 
     s.concat(b)
 
-1. `b` must be a value of the same Semigroup
+1. `b` должен быть значением того же Semigroup
 
-    1. If `b` is not the same semigroup, behaviour of `concat` is
-       unspecified.
+    1. Если `b` не тот же Semigroup, поведение `concat` неопределено
 
-2. `concat` must return a value of the same Semigroup.
+2. `concat` должен возвращать значение того же Semigroup
 
 ### Monoid
 
-A value that implements the Monoid specification must also implement
-the [Semigroup](#semigroup) specification.
+Значение, которое реализует спецификацию Monoid должно также реализовать спецификацию [Semigroup](#semigroup).
 
-1. `m.concat(M.empty())` is equivalent to `m` (right identity)
-2. `M.empty().concat(m)` is equivalent to `m` (left identity)
+1. `m.concat(M.empty())` эквивалентно `m` (точный справа)
+2. `M.empty().concat(m)` эквивалентно `m` (точный слева)
 
-#### `empty` method
+#### Метод `empty`
 
 ```hs
 empty :: Monoid m => () -> m
 ```
 
-A value which has a Monoid must provide an `empty` function on its
-[type representative](#type-representatives):
+Значение Monoid должно предоставить метод `empty` в её [представлении типа](#представление-типа):
 
     M.empty()
 
-Given a value `m`, one can access its type representative via the
-`constructor` property:
+Получив значение `m`, можно получить пердставление типа через свойство `constructor`:
 
     m.constructor.empty()
 
-1. `empty` must return a value of the same Monoid
+1. `empty` должен возвращать значение того же Monoid
 
 ### Functor
 
-1. `u.map(a => a)` is equivalent to `u` (identity)
-2. `u.map(x => f(g(x)))` is equivalent to `u.map(g).map(f)` (composition)
+1. `u.map(a => a)` эквивалентно `u` (идентичность)
+2. `u.map(x => f(g(x)))` эквивалентно `u.map(g).map(f)` (композиция)
 
-#### `map` method
+#### Метод `map`
 
 ```hs
 map :: Functor f => f a ~> (a -> b) -> f b
 ```
 
-A value which has a Functor must provide a `map` method. The `map`
-method takes one argument:
+Значение Functor должно предоставить метод `map`. Метод `map` принимает один аргумент:
 
     u.map(f)
 
-1. `f` must be a function,
+1. `f` должен быть функцией
 
-    1. If `f` is not a function, the behaviour of `map` is
-       unspecified.
-    2. `f` can return any value.
-    3. No parts of `f`'s return value should be checked.
+    1. Если `f` не функция, поведение `map` неопределено
+    2. `f` может вернуть любое значение
+    3. Значения возвращенные `f` проверять не надо
 
-2. `map` must return a value of the same Functor
+2. `map` должен возвращать значение того же Functor
 
 ### Contravariant
 
-1. `u.contramap(a => a)` is equivalent to `u` (identity)
-2. `u.contramap(x => f(g(x)))` is equivalent to `u.contramap(f).contramap(g)`
-(composition)
+1. `u.contramap(a => a)` эквивалентно `u` (идентичность)
+2. `u.contramap(x => f(g(x)))` эквивалентно `u.contramap(f).contramap(g)` (композиция)
 
-#### `contramap` method
+#### Метод `contramap`
 
 ```hs
 contramap :: Contravariant f => f a ~> (b -> a) -> f b
 ```
 
-A value which has a Contravariant must provide a `contramap` method. The
-`contramap` method takes one argument:
+Значение Contravariant должно предоставить метод `contramap`. Метод `contramap` принимает один аргумент:
 
     u.contramap(f)
 
-1. `f` must be a function,
+1. `f` должен быть функцией
 
-    1. If `f` is not a function, the behaviour of `contramap` is
-       unspecified.
-    2. `f` can return any value.
-    3. No parts of `f`'s return value should be checked.
+    1. Если `f` не функция, поведение `contramap` неопределено
+    2. `f` может вернуть любое значение
+    3. Значения возвращенные `f` проверять не надо
 
-2. `contramap` must return a value of the same Contravariant
+2. `contramap` должен возвращать значение того же Contravariant
 
 ### Apply
 
-A value that implements the Apply specification must also
-implement the [Functor](#functor) specification.
+Значение, которое реализует спецификация Apply должно также реализовывать спецификацию [Functor](#functor).
 
-1. `v.ap(u.ap(a.map(f => g => x => f(g(x)))))` is equivalent to `v.ap(u).ap(a)` (composition)
+1. `v.ap(u.ap(a.map(f => g => x => f(g(x)))))` эквивалентно `v.ap(u).ap(a)` (композиция)
 
-#### `ap` method
+#### Метод `ap`
 
 ```hs
 ap :: Apply f => f a ~> f (a -> b) -> f b
 ```
 
-A value which has an Apply must provide an `ap` method. The `ap`
-method takes one argument:
+Значение Apply должно предоставить метод `ap`. Метод `ap` принимает один аргумент:
 
     a.ap(b)
 
-1. `b` must be an Apply of a function,
+1. `b` должен быть функцией
 
-    1. If `b` does not represent a function, the behaviour of `ap` is
-       unspecified.
+    1. Если `b` не является функцией, поведение `ap` незадокументировано
 
-2. `a` must be an Apply of any value
+2. `a` должен быть любым значением Apply
 
-3. `ap` must apply the function in Apply `b` to the value in
-   Apply `a`
+3. `ap` должны применять функцию Apply `b` со значением Apply `a`
 
-   1. No parts of return value of that function should be checked.
+    1. Значения возвращенные этой функцией проверять не надо
 
 ### Applicative
 
-A value that implements the Applicative specification must also
-implement the [Apply](#apply) specification.
+Значение, которое реализует спецификация Applicative должно также реализовывать спецификацию [Apply](#apply).
 
-1. `v.ap(A.of(x => x))` is equivalent to `v` (identity)
-2. `A.of(x).ap(A.of(f))` is equivalent to `A.of(f(x))` (homomorphism)
-3. `A.of(y).ap(u)` is equivalent to `u.ap(A.of(f => f(y)))` (interchange)
+1. `v.ap(A.of(x => x))` эквивалентно `v` (идентичность)
+2. `A.of(x).ap(A.of(f))` эквивалентно `А.(Ф(Х))` (гомоморфизм)
+3. `A.of(y).ap(u)` эквивалентно `u.ap(A.of(f => f(y)))` (перестановка)
 
-#### `of` method
+#### Метод `of`
 
 ```hs
 of :: Applicative f => a -> f a
 ```
 
-A value which has an Applicative must provide an `of` function on its
-[type representative](#type-representatives). The `of` function takes
-one argument:
+Значение Applicative должно предоставить метод `of` в её [представлении типа](#представление-типа). Функция `of` принимает один аргумент:
 
     F.of(a)
 
-Given a value `f`, one can access its type representative via the
-`constructor` property:
+Получив значение `f`, можно получить представление типа через свойство `constructor`:
 
     f.constructor.of(a)
 
-1. `of` must provide a value of the same Applicative
+1. `of` должен вернуть значение того же Applicative
 
-    1. No parts of `a` should be checked
+    1. Значения возвращенные `a` проверять не надо
 
 ### Alt
 
-A value that implements the Alt specification must also implement
-the [Functor](#functor) specification.
+Значение, которое реализует спецификацию Alt должно также реализовать спецификацию [Functor](#functor).
 
-1. `a.alt(b).alt(c)` is equivalent to `a.alt(b.alt(c))` (associativity)
-2. `a.alt(b).map(f)` is equivalent to `a.map(f).alt(b.map(f))` (distributivity)
+1. `a.alt(b).alt(c)` эквивалентно `a.alt(b.alt(c))` (ассоциативность)
+2. `a.alt(b).map(f)` эквивалентно `a.map(f).alt(b.map(f))` (распределённость)
 
-#### `alt` method
+#### Метод `alt`
 
 ```hs
 alt :: Alt f => f a ~> f a -> f a
 ```
 
-A value which has a Alt must provide a `alt` method. The
-`alt` method takes one argument:
+Значение Alt должно предоставить метод `alt`. Метод `alt` принимает один аргумент:
 
     a.alt(b)
 
-1. `b` must be a value of the same Alt
+1. `b` должен быть значением того же Alt
 
-    1. If `b` is not the same Alt, behaviour of `alt` is
-       unspecified.
-    2. `a` and `b` can contain any value of same type.
-    3. No parts of `a`'s and `b`'s containing value should be checked.
+    1. Если `b` не тот же Alt, поведение `alt` неопределено
+    2. `a` и `b` могут содержать любое значение того же типа
+    3. Значения содержащиеся в `a` и `b` проверять не надо
 
-2. `alt` must return a value of the same Alt.
+2. `alt` должен вернуть значение того же Alt
 
 ### Plus
 
-A value that implements the Plus specification must also implement
-the [Alt](#alt) specification.
+Значение, которое реализует спецификацию Plus также должно реализовать спецификацию [Alt](#alt).
 
-1. `x.alt(A.zero())` is equivalent to `x` (right identity)
-2. `A.zero().alt(x)` is equivalent to `x` (left identity)
-3. `A.zero().map(f)` is equivalent to `A.zero()` (annihilation)
+1. `x.alt(A.zero())` эквивалентно `x` (права идентичность)
+2. `A.zero().alt(x)` эквивалентно `x` (левая идентичность)
+3. `A.zero().map(f)` эквивалентно `A.zero()` (упразднение)
 
-#### `zero` method
+#### Метод `zero`
 
 ```hs
 zero :: Plus f => () -> f a
 ```
 
-A value which has a Plus must provide an `zero` function on its
-[type representative](#type-representatives):
+Значение Plus должно предоставить метод `zero` в её [представлении типа](#представление-типа):
 
     A.zero()
 
-Given a value `x`, one can access its type representative via the
-`constructor` property:
+Получив значение `x`, можно получить представление типа через свойство `constructor`:
 
     x.constructor.zero()
 
-1. `zero` must return a value of the same Plus
+1. `zero` должен возвращать значение того же Plus
 
 ### Alternative
 
-A value that implements the Alternative specification must also implement
-the [Applicative](#applicative) and [Plus](#plus) specifications.
+Значение, которое реализует спецификацию Alternative должно также реализовать спцификации [Applicative](#applicative) и [Plus](#plus).
 
-1. `x.ap(f.alt(g))` is equivalent to `x.ap(f).alt(x.ap(g))` (distributivity)
-2. `x.ap(A.zero())` is equivalent to `A.zero()` (annihilation)
+1. `x.ap(f.alt(g))` эквивалентно `x.ap(f).alt(x.ap(g))` (распределённость)
+2. `x.ap(A.zero())` эквивалентно `A.zero()` (упразднение)
 
 ### Foldable
 
-1. `u.reduce` is equivalent to `u.reduce((acc, x) => acc.concat([x]), []).reduce`
+1. `u.reduce` эквивалентно `u.reduce((acc, x) => acc.concat([x]), []).reduce`
 
-#### `reduce` method
+#### Метод `reduce`
 
 ```hs
 reduce :: Foldable f => f a ~> ((b, a) -> b, b) -> b
 ```
 
-A value which has a Foldable must provide a `reduce` method. The `reduce`
-method takes two arguments:
+Значение Foldable должно предоставить метод `reduce`. Метод `reduce` принимает два аргумента:
 
     u.reduce(f, x)
 
-1. `f` must be a binary function
+1. `f` должен быть двоичной функцией
 
-    1. if `f` is not a function, the behaviour of `reduce` is unspecified.
-    2. The first argument to `f` must be the same type as `x`.
-    3. `f` must return a value of the same type as `x`.
-    4. No parts of `f`'s return value should be checked.
+    1. Если `f` не функция, поведение `reduce` неопределено
+    2. Первый аргумент `f` должен быть такого же типа, как `x`
+    3. `f` должен возвращать значение такого же типа, как `x`
+    4. Значения возвращенные `f` проверять не надо
 
-1. `x` is the initial accumulator value for the reduction
+2. `x` - это первоначальное аккумулятивное значение для преобразования
 
-    1. No parts of `x` should be checked.
+    1. `x` проверять не надо
 
 ### Traversable
 
-A value that implements the Traversable specification must also
-implement the [Functor](#functor) and [Foldable](#foldable) specifications.
+Значение, которое реализует спецификацию Traversable должно также реализовывать спецификации [Functor](#functor) и [Foldable](#foldable).
 
-1. `t(u.traverse(F, x => x))` is equivalent to `u.traverse(G, t)` for any
-   `t` such that `t(a).map(f)` is equivalent to `t(a.map(f))` (naturality)
+1. `t(u.traverse(F, x => x))` эквивалентно `u.traverse(G, t)` для любого `t` такого, что `t(a).map(f)` эквивалентно `t(a.map(f))` (нормализованность)
 
-2. `u.traverse(F, F.of)` is equivalent to `F.of(u)` for any Applicative `F`
-   (identity)
+2. `u.traverse(F, F.of)` эквивалентно `F.of(u)` для любой Applicative `F` (идентичность)
 
-3. `u.traverse(Compose, x => new Compose(x))` is equivalent to
-   `new Compose(u.traverse(F, x => x).map(x => x.traverse(G, x => x)))` for
-   `Compose` defined below and any Applicatives `F` and `G` (composition)
+3. `u.traverse(Compose, x => new Compose(x))` эквивалентно `new Compose(u.traverse(F, x => x).map(x => x.traverse(G, x => x)))` для `Compose`, определенных ниже, и любых Applicatives `F` и `G` (композиция)
 
 ```js
 var Compose = function(c) {
@@ -395,247 +351,232 @@ Compose.prototype.map = function(f) {
 };
 ```
 
-#### `traverse` method
+#### Метод `traverse`
 
 ```hs
 traverse :: Applicative f, Traversable t => t a ~> (TypeRep f, a -> f b) -> f (t b)
 ```
 
-A value which has a Traversable must provide a `traverse` method. The `traverse`
-method takes two arguments:
+Значение Traversable должно предоставить метод `traverse`. Метод `traverse` принимает два аргумента:
 
     u.traverse(A, f)
 
-1. `A` must be the [type representative](#type-representatives) of an
-   Applicative.
+1. `A` должен быть [пердставлением типа](#представление-типа) Applicative
 
-2. `f` must be a function which returns a value
+2. `f` должен быть функцией, которая возвращает значение
 
-    1. If `f` is not a function, the behaviour of `traverse` is
-       unspecified.
-    2. `f` must return a value of the type represented by `A`.
+    1. Если `f` не функция, поведение `traverse` неопределено
+    2. `f` должен возвращать значение типа, представленного `A`
 
-3. `traverse` must return a value of the type represented by `A`.
+3. `traverse` должен возвращать значение типа представленного `A`
 
 ### Chain
 
-A value that implements the Chain specification must also
-implement the [Apply](#apply) specification.
+Значение, которое реализует спецификацию Chain должно также реализовывать спецификацию [Apply](#apply).
 
-1. `m.chain(f).chain(g)` is equivalent to `m.chain(x => f(x).chain(g))` (associativity)
+1. `m.chain(f).chain(g)` эквивалентно `m.chain(x => f(x).chain(g))` (ассоциативность)
 
-#### `chain` method
+#### Метод `chain`
 
 ```hs
 chain :: Chain m => m a ~> (a -> m b) -> m b
 ```
 
-A value which has a Chain must provide a `chain` method. The `chain`
-method takes one argument:
+Значение Chain должно предоставить метод `chain`. Метод `chain` принимает один аргумент:
 
     m.chain(f)
 
-1. `f` must be a function which returns a value
+1. `f` должен быть функцией, которая возвращает значение
 
-    1. If `f` is not a function, the behaviour of `chain` is
-       unspecified.
-    2. `f` must return a value of the same Chain
+    1. Если `f` не функция, поведение `chain` неопределено
+    2. `f` должен возвращать значение того же Chain
 
-2. `chain` must return a value of the same Chain
+2. `chain` должен возвращать значение того же Chain
 
 ### ChainRec
 
-A value that implements the ChainRec specification must also implement the [Chain](#chain) specification.
+Значение, которое реализует спецификацию ChainRec должно реализовать спецификацию [Chain](#chain).
 
-1. `M.chainRec((next, done, v) => p(v) ? d(v).map(done) : n(v).map(next), i)`
-   is equivalent to
-   `(function step(v) { return p(v) ? d(v) : n(v).chain(step); }(i))` (equivalence)
-2. Stack usage of `M.chainRec(f, i)` must be at most a constant multiple of the stack usage of `f` itself.
+1. `M.chainRec((next, done, v) => p(v) ? d(v).map(done) : n(v).map(next), i)` эквивалентно `(function step(v) { return p(v) ? d(v) : n(v).chain(step); }(i))` (эквивалентность)
+2. Использование `M.chainRec(f, i)` должно быть максимально подобным самостоятельному вызову `f`
 
-#### `chainRec` method
+#### Метод `chainRec`
 
 ```hs
 chainRec :: ChainRec m => ((a -> c, b -> c, a) -> m c, a) -> m b
 ```
 
-A Type which has a ChainRec must provide a `chainRec` function on its
-[type representative](#type-representatives). The `chainRec` function
-takes two arguments:
+Значение ChainRec должно предоставить метод `chainRec` в его [представлении типа](#представление-типа). Метод `chainRec` принимает два аргумента:
 
     M.chainRec(f, i)
 
-Given a value `m`, one can access its type representative via the
-`constructor` property:
+Получив значение `m`, можно получить представление типа через свойство `constructor`:
 
     m.constructor.chainRec(f, i)
 
-1. `f` must be a function which returns a value
-    1. If `f` is not a function, the behaviour of `chainRec` is unspecified.
-    2. `f` takes three arguments `next`, `done`, `value`
-        1. `next` is a function which takes one argument of same type as `i` and can return any value
-        2. `done` is a function which takes one argument and returns the same type as the return value of `next`
-        3. `value` is some value of the same type as `i`
-    3. `f` must return a value of the same ChainRec which contains a value returned from either `done` or `next`
-2. `chainRec` must return a value of the same ChainRec which contains a value of same type as argument of `done`
+1. `f` должен быть функцией, которая возвращает значение
+
+    1. Если `f` не функция, поведение `chainRec` неопределено
+    2. `f` принимает три аргумента `next`, `done`, `value`
+
+        1. `next` - это функция, которая принимает один аргумент того же типа, как `i` и может вернуть любое значение
+        2. `done` - это функция, которая принимает один аргумент и возвращает тот же тип, возвращаемое значение `next`
+        3. `value` - это значение такого же типа, как `i`
+
+    3. `f` должен возвращать значение того же ChainRec, который содержит значение, возвращаемое из `done` или `next`
+
+2. `chainRec` должен возвращать значение того же ChainRec, который содержит то же значение, что и аргумент `done`
 
 ### Monad
 
-A value that implements the Monad specification must also implement
-the [Applicative](#applicative) and [Chain](#chain) specifications.
+Значение, которое реализует спецификацию Monad должно также реализовать спецификации [Applicative](#applicative) and [Chain](#chain).
 
-1. `M.of(a).chain(f)` is equivalent to `f(a)` (left identity)
-2. `m.chain(M.of)` is equivalent to `m` (right identity)
+1. `M.of(a).chain(f)` эквивалентно `f(a)` (левая идентичность)
+2. `m.chain(M.of)` эквивалентно `m` (правая идентичность)
 
 ### Extend
 
-A value that implements the Extend specification must also implement the [Functor](#functor) specification.
+Значение, которое реализует спецификацию Extend должно реализовать спецификацию [Functor](#functor).
 
-1. `w.extend(g).extend(f)` is equivalent to `w.extend(_w => f(_w.extend(g)))`
+1. `w.extend(g).extend(f)` эквивалентно `w.extend(_w => f(_w.extend(g)))`
 
-#### `extend` method
+#### Метод `extend`
 
 ```hs
 extend :: Extend w => w a ~> (w a -> b) -> w b
 ```
 
-An Extend must provide an `extend` method. The `extend`
-method takes one argument:
+Значение Extend должно предоставить метод `extend`. Метод `extend` принимает один аргумент:
 
      w.extend(f)
 
-1. `f` must be a function which returns a value
+1. `f` должен быть функцией, которая возвращает значение
 
-    1. If `f` is not a function, the behaviour of `extend` is
-       unspecified.
-    2. `f` must return a value of type `v`, for some variable `v` contained in `w`.
-    3. No parts of `f`'s return value should be checked.
+    1. Если `f` не функция, поведение `extend` неопределено
+    2. `f` должен возвращать значение типа `v`, для некоторой переменной `v`, содержащейся в `w`
+    3. Значения возвращенные `f` проверять не надо
 
-2. `extend` must return a value of the same Extend.
+2. `extend` должен возвращать значение того же Extend
 
 ### Comonad
 
-A value that implements the Comonad specification must also implement the [Extend](#extend) specification.
+Значение, которое реализует спецификацию Comonad должно реализовать спецификацию [Extend](#extend).
 
-1. `w.extend(_w => _w.extract())` is equivalent to `w` (left identity)
-2. `w.extend(f).extract()` is equivalent to `f(w)` (right identity)
+1. `w.extend(_w => _w.extract())` эквивалентно `w` (точный слева)
+2. `w.extend(f).extract()` эквивалентно `f(w)` (пточный справа)
 
-#### `extract` method
+#### Метод `extract`
 
 ```hs
 extract :: Comonad w => w a ~> () -> a
 ```
 
-A value which has a Comonad must provide an `extract` method on itself.
-The `extract` method takes no arguments:
+Значение Comonad должно предоставить метод `extract`. Метод `extract` не принимает никаких аргументов:
 
     w.extract()
 
-1. `extract` must return a value of type `v`, for some variable `v` contained in `w`.
-    1. `v` must have the same type that `f` returns in `extend`.
+1. `extract` должен возвращать значение типа `v`, для некоторой переменной `v`, содержащиеся в `w`
+
+    1. `v` должен иметь тот же тип, что возвращает `f` в `extend`
 
 ### Bifunctor
 
-A value that implements the Bifunctor specification must also implement
-the [Functor](#functor) specification.
+Значение, которое реализует спецификацию Bifunctor должно также реализовать спецификацию [Functor](#functor).
 
-1. `p.bimap(a => a, b => b)` is equivalent to `p` (identity)
-2. `p.bimap(a => f(g(a)), b => h(i(b))` is equivalent to `p.bimap(g, i).bimap(f, h)` (composition)
+1. `p.bimap(a => a, b => b)` эквивалентно `р` (идентичность)
+2. `p.bimap(a => f(g(a)), b => h(i(b))` эквивалентно `p.bimap(g, i).bimap(f, h)` (композиция)
 
-#### `bimap` method
+#### Метод `bimap`
 
 ```hs
 bimap :: Bifunctor f => f a c ~> (a -> b, c -> d) -> f b d
 ```
 
-A value which has a Bifunctor must provide a `bimap` method. The `bimap`
-method takes two arguments:
+Значение Bifunctor должно предоставить метод `bimap`. Метод `bimap` принимает два аргумента:
 
     c.bimap(f, g)
 
-1. `f` must be a function which returns a value
+1. `f` должен быть функцией, которая возвращает значение
 
-    1. If `f` is not a function, the behaviour of `bimap` is unspecified.
-    2. `f` can return any value.
-    3. No parts of `f`'s return value should be checked.
+    1. Если `f` не функция, поведение `bimap` неопределено
+    2. `f` может вернуть любое значение
+    3. Значение возвращенное `f` проверять не надо
 
-2. `g` must be a function which returns a value
+2. `g` должен быть функцией, которая возвращает значение
 
-    1. If `g` is not a function, the behaviour of `bimap` is unspecified.
-    2. `g` can return any value.
-    3. No parts of `g`'s return value should be checked.
+    1. Если `g` не функция, поведение `promap` неопределено
+    2. `g` может возвращать любое значение
+    3. Значение возвращенное `g` проверять не надо
 
-3. `bimap` must return a value of the same Bifunctor.
+3. `bimap` должен возвращать значение того же Bifunctor
 
 ### Profunctor
 
-A value that implements the Profunctor specification must also implement
-the [Functor](#functor) specification.
+Значение, которое реализует спецификацию Profunctor должно также реализовать спецификацию [Functor](#functor).
 
-1. `p.promap(a => a, b => b)` is equivalent to `p` (identity)
-2. `p.promap(a => f(g(a)), b => h(i(b)))` is equivalent to `p.promap(f, i).promap(g, h)` (composition)
+1. `p.promap(a => a, b => b)` эквивалентно `р` (идентичность)
+2. `p.promap(a => f(g(a)), b => h(i(b)))` эквивалентно `p.promap(f, i).promap(g, h)` (композиция)
 
-#### `promap` method
+#### Метод `promap`
 
 ```hs
 promap :: Profunctor p => p b c ~> (a -> b, c -> d) -> p a d
 ```
 
-A value which has a Profunctor must provide a `promap` method.
-
-The `profunctor` method takes two arguments:
+Значение Profunctor должно предоставить метод `promap`. Метод `profunctor` принимает два аргумента:
 
     c.promap(f, g)
 
-1. `f` must be a function which returns a value
+1. `f` должен быть функцией, которая возвращает значение
 
-    1. If `f` is not a function, the behaviour of `promap` is unspecified.
-    2. `f` can return any value.
-    3. No parts of `f`'s return value should be checked.
+    1. Если `f` не функция, поведение `promap` неопределено
+    2. `f` может вернуть любое значение
+    3. Значение возвращенное `f` проверять не надо
 
-2. `g` must be a function which returns a value
+2. `g` должен быть функцией, которая возвращает значение
 
-    1. If `g` is not a function, the behaviour of `promap` is unspecified.
-    2. `g` can return any value.
-    3. No parts of `g`'s return value should be checked.
+    1. Если `g` не функция, поведение `promap` неопределено
+    2. `g` может возвращать любое значение
+    3. Значение возвращенное `g` проверять не надо
 
-3. `promap` must return a value of the same Profunctor
+3. `promap` должен возвращать значение того же Profunctor
 
-## Derivations
+## Реализации
 
-When creating data types which satisfy multiple algebras, authors may choose
-to implement certain methods then derive the remaining methods. Derivations:
+При создании типов данных, которые удовлетворяют нескольким алгебрам, авторы могут выбрать для реализации определенных методов другие методы. Реализации:
 
-  - [`map`][] may be derived from [`ap`][] and [`of`][]:
+
+  - [`map`][] может быть реализован с помощью [`ap`][] и [`of`][]:
 
     ```js
     function(f) { return this.ap(this.of(f)); }
     ```
 
-  - [`map`][] may be derived from [`chain`][] and [`of`][]:
+  - [`map`][]может быть реализован с помощью [`chain`][] и [`of`][]:
 
     ```js
     function(f) { return this.chain(a => this.of(f(a))); }
     ```
 
-  - [`map`][] may be derived from [`bimap`]:
+  - [`map`][] может быть реализован с помощью [`bimap`]:
 
     ```js
     function(f) { return this.bimap(a => a, f); }
     ```
 
-  - [`map`][] may be derived from [`promap`]:
+  - [`map`][] может быть реализован с помощью [`promap`]:
 
     ```js
     function(f) { return this.promap(a => a, f); }
     ```
 
-  - [`ap`][] may be derived from [`chain`][]:
+  - [`ap`][] может быть реализован с помощью [`chain`][]:
 
     ```js
     function(m) { return m.chain(f => this.map(f)); }
     ```
 
-  - [`reduce`][] may be derived as follows:
+  - [`reduce`][] может быть реализован так:
 
     ```js
     function(f, acc) {
@@ -655,7 +596,7 @@ to implement certain methods then derive the remaining methods. Derivations:
     }
     ```
 
-  - [`map`][] may be derived as follows:
+  - [`map`][] может быть реализован так:
 
     ```js
     function(f) {
@@ -675,19 +616,14 @@ to implement certain methods then derive the remaining methods. Derivations:
     }
     ```
 
-If a data type provides a method which *could* be derived, its behaviour must
-be equivalent to that of the derivation (or derivations).
+Если тип данных реализует метод, который *может* быть реализован, его поведение должно быть эквивалентно реализации (или реализациям).
 
-## Notes
+## Примечания
 
-1. If there's more than a single way to implement the methods and
-   laws, the implementation should choose one and provide wrappers for
-   other uses.
-2. It's discouraged to overload the specified methods. It can easily
-   result in broken and buggy behaviour.
-3. It is recommended to throw an exception on unspecified behaviour.
-4. An `Id` container which implements many of the methods is provided in
-   `internal/id.js`.
+1. Если есть больше чем один способ реализации методов и законов, реализация должна выбрать один и представить обертку для других применений.
+2. Не рекомендуется перегружать спецификации методов. Можно легко в результате получить сломанное и неправильное поведение.
+3. Рекомендуется выбрасывать предупреждение на незадокументированное применение.
+4. Контейнер `Id`, который реализует множество методов доступен в `internal/id.js`.
 
 
 [`ap`]: #ap-method
@@ -704,7 +640,6 @@ be equivalent to that of the derivation (or derivations).
 [`reduce`]: #reduce-method
 [`sequence`]: #sequence-method
 
-## Alternatives
+## Альтернативы
 
-There also exists [Static Land Specification](https://github.com/rpominov/static-land)
-with the exactly same ideas as Fantasy Land but based on static methods instead of instance methods.
+Существует также [Спецификация Static Land](https://github.com/rpominov/static-land)
