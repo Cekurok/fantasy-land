@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/fantasyland/fantasy-land.svg?branch=master)](https://travis-ci.org/fantasyland/fantasy-land) [![Join the chat at https://gitter.im/fantasyland/fantasy-land](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/fantasyland/fantasy-land?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-(aka "Спецификация Алгебраического JavaScript")
+(aka "Спецификация Алгебраический JavaScript")
 
 <img src="logo.png" width="200" height="200" />
 
