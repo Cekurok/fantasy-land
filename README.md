@@ -104,7 +104,7 @@ equals :: Setoid a => a ~> a -> Boolean
 
 ### Semigroup
 
-1. `a.concat(b).concat(c)` эквивалентно `a.concat(b).concat(c)` (ассоциативность)
+1. `a.concat(b).concat(c)` эквивалентно `a.concat(b.concat(c))` (ассоциативность)
 
 #### Метод `concat`
 
